@@ -19,7 +19,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -35,7 +35,7 @@ public class Order {
     private Long id;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -55,6 +55,6 @@ public class Order {
 
     @PrePersist
     public void prePersist() {
-        createdAt = Instant.now();
+        createdAt = LocalDateTime.now();
     }
 }

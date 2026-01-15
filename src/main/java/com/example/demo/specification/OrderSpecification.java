@@ -7,12 +7,12 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderSpecification {
-    public static Specification<Order> filterBy(OrderStatus status, Instant createdAt, Long itemId) {
+    public static Specification<Order> filterBy(OrderStatus status, LocalDateTime createdAt, Long itemId) {
         return (root, query, builder) -> {
             List<Predicate> predicates = new ArrayList<>();
 

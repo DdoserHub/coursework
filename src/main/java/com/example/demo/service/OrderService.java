@@ -20,7 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,17 +33,26 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final ItemRepository itemRepository;
 
+
+    public Order getOrderOrThrow(Long id) {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Заказа с id: " + id + " не найден"));
+    }
+    
+    @Transactional
     public OrderResponseDTO addOrder(OrderRequestDTO orderRequestDTO) {
-        Client currentClient = clientRepository.getClientOrThrow(orderRequestDTO.getClientId());
-        Order newOrder = orderMapper.toOrder(orderRequestDTO);
-        newOrder.setClient(currentClient);
+        Client currentClient = clientRepository.findById(orderRequestDTO.getClientId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Клиент с id: " + orderRequestDTO.getClientId() + " не найден"));
+
+        Order newOrder = orderMapper.toOrder(orderRequestDTO, currentClient);
         orderRepository.save(newOrder);
         return orderMapper.toOrderResponseDTO(newOrder);
     }
 
     @Transactional
     public OrderResponseDTO addOrderItem(Long id, OrderAddItemsRequest orderAddItemsRequest) {
-        Order currentOrder = orderRepository.getOrderOrThrow(id);
+        Order currentOrder = getOrderOrThrow(id);
 
         Set<Item> itemsToAdd = new HashSet<>(itemRepository.findAllById(orderAddItemsRequest.getItemIds()));
 
@@ -55,22 +64,22 @@ public class OrderService {
         return orderMapper.toOrderResponseDTO(currentOrder);
     }
 
-
+    @Transactional
     public OrderResponseDTO updateOrderStatus(Long id, OrderStatusDTO status) {
-        Order currentOrder = orderRepository.getOrderOrThrow(id);
+        Order currentOrder = getOrderOrThrow(id);
         currentOrder.setStatus(status.getStatus());
         orderRepository.save(currentOrder);
         return orderMapper.toOrderResponseDTO(currentOrder);
     }
 
     public boolean deleteOrder(Long id) {
-        orderRepository.getOrderOrThrow(id);
+        getOrderOrThrow(id);
         orderRepository.deleteById(id);
         return true;
     }
 
     public boolean deleteOrderItem(Long id, OrderAddItemsRequest orderAddItemsRequest) {
-        Order currentOrder = orderRepository.getOrderOrThrow(id);
+        Order currentOrder = getOrderOrThrow(id);
 
         Set<Item> itemsToRemove = new HashSet<>(itemRepository.findAllById(orderAddItemsRequest.getItemIds()));
 
@@ -88,7 +97,7 @@ public class OrderService {
         return true;
     }
 
-    public Page<OrderResponseDTO> getOrder(OrderStatus status, Instant createdAt,
+    public Page<OrderResponseDTO> getOrder(OrderStatus status, LocalDateTime createdAt,
                                            Long itemId,
                                            String directional, String sortBy,
                                            int page, int size) {
@@ -109,7 +118,7 @@ public class OrderService {
     }
 
     public OrderResponseDTO getOrderById(Long id) {
-        Order currentOrder = orderRepository.getOrderOrThrow(id);
+        Order currentOrder = getOrderOrThrow(id);
         return orderMapper.toOrderResponseDTO(currentOrder);
     }
 }

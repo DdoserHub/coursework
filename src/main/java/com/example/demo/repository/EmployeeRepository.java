@@ -1,16 +1,17 @@
 package com.example.demo.repository;
 
 import com.example.demo.entity.Employee;
-import com.example.demo.exception.NotFoundException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long>, JpaSpecificationExecutor<Employee> {
-    default Employee getEmployeeOrThrow(Long id) {
-        return findById(id)
-                .orElseThrow(() -> new NotFoundException("Работник с id: " + id + " не найден"));
-    }
+
+    @Query("SELECT e FROM Employee e WHERE e.email = :email")
+    Optional<Employee> findEmployeeByEmail(String email);
 }

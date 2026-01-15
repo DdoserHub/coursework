@@ -17,7 +17,7 @@ public class ItemSpecification {
             }
 
             if (cost != null) {
-                predicates.add(builder.equal(root.get("surname"), cost));
+                predicates.add(builder.equal(root.get("cost"), cost));
             }
 
             return builder.and(predicates.toArray(new Predicate[0]));
