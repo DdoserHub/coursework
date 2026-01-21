@@ -16,6 +16,6 @@ public class OrderRequestDTO {
     private Long clientId;
 
     @NotNull
-    @Schema(description = "Статус заказа", example = "IN_PROGRESS")
+    @Schema(description = "Статус заказа", example = "В процессе")
     private OrderStatus status;
 }

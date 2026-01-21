@@ -1,6 +1,10 @@
 package com.example.demo.config;
 
 import com.example.demo.filter.JwtFilter;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +36,8 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/login/**",
                                 "/swagger-ui/**", "/v3/api-docs/**",
-                                "/actuator/**"
+                                "/actuator/**",
+                                "/create/employee"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
@@ -44,4 +49,23 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public OpenAPI openAPI() {
+        String schemeName = "bearerAuth";
+
+        return new OpenAPI()
+                .components(new Components()
+                        .addSecuritySchemes(schemeName,
+                                new SecurityScheme()
+                                        .name(schemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")
+                        )
+                )
+                // делает авторизацию “глобальной” для всех эндпоинтов
+                .addSecurityItem(new SecurityRequirement().addList(schemeName));
+    }
+
 }

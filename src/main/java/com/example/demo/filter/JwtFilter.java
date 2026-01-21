@@ -29,7 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        String path = request.getRequestURI().substring(request.getContextPath().length());
 
         if (isPublicPath(path)) {
             filterChain.doFilter(request, response);
@@ -61,6 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
         return path.startsWith("/login")
                 || path.startsWith("/swagger-ui")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/actuator");
+                || path.startsWith("/actuator")
+                || path.equals("/create/employee");
     }
 }
